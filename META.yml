@@ -13,6 +13,7 @@ build_requires:
   Test::Deep: 0
   Test::More: 0.96
   Test::Requires: 0
+  Time::Local: 0
   Time::Mock: 0
   URI: 0
 configure_requires:
@@ -35,10 +36,10 @@ no_index:
 provides:
   HTTP::CookieJar:
     file: lib/HTTP/CookieJar.pm
-    version: 0.002
+    version: 0.003
   HTTP::CookieJar::LWP:
     file: lib/HTTP/CookieJar/LWP.pm
-    version: 0.002
+    version: 0.003
 recommends:
   Mozilla::PublicSuffix: 0
 requires:
@@ -53,4 +54,4 @@ resources:
   bugtracker: https://github.com/dagolden/http-cookiejar/issues
   homepage: https://metacpan.org/release/HTTP-CookieJar
   repository: git://github.com/dagolden/http-cookiejar.git
-version: 0.002
+version: 0.003
