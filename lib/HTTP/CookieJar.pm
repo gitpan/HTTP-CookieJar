@@ -4,7 +4,7 @@ use warnings;
 
 package HTTP::CookieJar;
 # ABSTRACT: A minimalist HTTP user agent cookie jar
-our $VERSION = '0.001'; # VERSION
+our $VERSION = '0.002'; # VERSION
 
 use Carp       ();
 use HTTP::Date ();
@@ -20,6 +20,7 @@ sub new {
 
 sub add {
     my ( $self, $request, $cookie ) = @_;
+    return unless length $cookie;
     my ( $scheme, $host, $port, $request_path ) = eval { _split_url($request) };
     Carp::croak($@) if $@;
 
@@ -261,7 +262,7 @@ HTTP::CookieJar - A minimalist HTTP user agent cookie jar
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 

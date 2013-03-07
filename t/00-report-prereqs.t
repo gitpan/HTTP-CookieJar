@@ -23,6 +23,7 @@ my @modules = qw(
   Test::Deep
   Test::More
   Test::Requires
+  Time::Local
   Time::Mock
   URI
   parent
