@@ -16,8 +16,6 @@ my @modules = qw(
   File::Spec::Functions
   File::Temp
   HTTP::Date
-  HTTP::Request
-  HTTP::Response
   List::Util
   Mozilla::PublicSuffix
   Test::Deep
