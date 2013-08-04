@@ -2,7 +2,7 @@ NAME
     HTTP::CookieJar - A minimalist HTTP user agent cookie jar
 
 VERSION
-    version 0.004
+    version 0.005
 
 SYNOPSIS
       use HTTP::CookieJar;

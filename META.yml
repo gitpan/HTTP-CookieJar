@@ -17,7 +17,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.130880'
+generated_by: 'Dist::Zilla version 4.300035, CPAN::Meta::Converter version 2.132140'
 license: apache
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -34,10 +34,10 @@ no_index:
 provides:
   HTTP::CookieJar:
     file: lib/HTTP/CookieJar.pm
-    version: 0.004
+    version: 0.005
   HTTP::CookieJar::LWP:
     file: lib/HTTP/CookieJar/LWP.pm
-    version: 0.004
+    version: 0.005
 recommends:
   Mozilla::PublicSuffix: 0
 requires:
@@ -52,4 +52,5 @@ resources:
   bugtracker: https://github.com/dagolden/http-cookiejar/issues
   homepage: https://metacpan.org/release/HTTP-CookieJar
   repository: git://github.com/dagolden/http-cookiejar.git
-version: 0.004
+version: 0.005
+x_authority: cpan:DAGOLDEN
