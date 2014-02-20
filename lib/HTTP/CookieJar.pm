@@ -4,19 +4,41 @@ use warnings;
 
 package HTTP::CookieJar;
 # ABSTRACT: A minimalist HTTP user agent cookie jar
-our $VERSION = '0.005'; # VERSION
+our $VERSION = '0.006'; # VERSION
 
 use Carp       ();
 use HTTP::Date ();
 
 my $HAS_MPS = eval { require Mozilla::PublicSuffix; 1 };
 
+# =construct new
+#
+#     my $jar = HTTP::CookieJar->new;
+#
+# Return a new, empty cookie jar
+#
+# =cut
 
 sub new {
     my ($class) = @_;
     bless { store => {} }, $class;
 }
 
+# =method add
+#
+#     $jar->add(
+#         "http://www.example.com/", "lang=en-US; Path=/; Domain=example.com"
+#     );
+#
+# Given a request URL and a C<Set-Cookie> header string, attempts to adds the
+# cookie to the jar.  If the cookie is expired, instead it deletes any matching
+# cookie from the jar.  A C<Max-Age> attribute will be converted to an absolute
+# C<Expires> attribute.
+#
+# It will throw an exception if the request URL is missing or invalid.  Returns true if
+# successful cookie processing or undef/empty-list on failure.
+#
+# =cut
 
 sub add {
     my ( $self, $request, $cookie ) = @_;
@@ -61,6 +83,13 @@ sub add {
     return 1;
 }
 
+# =method clear
+#
+#     $jar->clear
+#
+# Empties the cookie jar.
+#
+# =cut
 
 sub clear {
     my ($self) = @_;
@@ -68,6 +97,40 @@ sub clear {
     return 1;
 }
 
+# =method cookies_for
+#
+#     my @cookies = $jar->cookies_for("http://www.example.com/foo/bar");
+#
+# Given a request URL, returns a list of hash references representing cookies
+# that should be sent.  The hash references are copies -- changing values
+# will not change the cookies in the jar.
+#
+# Cookies set C<secure> will only be returned if the request scheme is C<https>.
+# Expired cookies will not be returned.
+#
+# Keys of a cookie hash reference might include:
+#
+# =for :list
+# * name -- the name of the cookie
+# * value -- the value of the cookie
+# * domain -- the domain name to which the cookie applies
+# * path -- the path to which the cookie applies
+# * expires -- if present, when the cookie expires in epoch seconds
+# * secure -- if present, the cookie was set C<Secure>
+# * httponly -- if present, the cookie was set C<HttpOnly>
+# * hostonly -- if present, the cookie may only be used with the domain as a host
+# * creation_time -- epoch seconds since the cookie was first stored
+# * last_access_time -- epoch seconds since the cookie was last stored
+#
+# Keep in mind that C<httponly> means it should only be used in requests and not
+# made available via Javascript, etc.  This is pretty meaningless for Perl user
+# agents.
+#
+# Generally, user agents should use the C<cookie_header> method instead.
+#
+# It will throw an exception if the request URL is missing or invalid.
+#
+# =cut
 
 sub cookies_for {
     my ( $self, $request ) = @_;
@@ -91,12 +154,45 @@ sub cookies_for {
     return @found;
 }
 
+# =method cookie_header
+#
+#     my $header = $jar->cookie_header("http://www.example.com/foo/bar");
+#
+# Given a request URL, returns a correctly-formatted string with all relevant
+# cookies for the request.  This string is ready to be used in a C<Cookie> header
+# in an HTTP request.  E.g.:
+#
+#     SID=31d4d96e407aad42; lang=en-US
+#
+# It follows the same exclusion rules as C<cookies_for>.
+#
+# If the request is invalid or no cookies apply, it will return an empty string.
+#
+# =cut
 
 sub cookie_header {
     my ( $self, $req ) = @_;
     return join( "; ", map { "$_->{name}=$_->{value}" } $self->cookies_for($req) );
 }
 
+# =method dump_cookies
+#
+#     my @list = $jar->dump_cookies;
+#     my @list = $jar->dump_cookies( { persistent => 1 } );
+#
+# Returns a list of raw cookies in string form.  The strings resemble what
+# would be received from C<Set-Cookie> headers, but with additional internal
+# fields.  The list is only intended for use with C<load_cookies> to allow
+# cookie jar persistence.
+#
+# If a hash reference with a true C<persistent> key is given as an argument,
+# cookies without an C<Expires> time (i.e. "session cookies") will be omitted.
+#
+# Here is a trivial example of saving a cookie jar file with L<Path::Tiny>:
+#
+#     path("jar.txt")->spew( join "\n", $jar->dump_cookies );
+#
+# =cut
 
 sub dump_cookies {
     my ( $self, $args ) = @_;
@@ -120,6 +216,25 @@ sub dump_cookies {
     return @list;
 }
 
+# =method load_cookies
+#
+#     $jar->load_cookies( @cookies );
+#
+# Given a list of cookie strings from C<dump_cookies>, it adds them to
+# the cookie jar.  Cookies added in this way will supersede any existing
+# cookies with similar domain, path and name.
+#
+# It returns the jar object for convenience when loading a new object:
+#
+#     my $jar = HTTP::CookieJar->new->load_cookies( @cookies );
+#
+# Here is a trivial example of loading a cookie jar file with L<Path::Tiny>:
+#
+#     my $jar = HTTP::CookieJar->new->load_cookies(
+#         path("jar.txt")->lines
+#     );
+#
+# =cut
 
 sub load_cookies {
     my ( $self, @cookies ) = @_;
@@ -256,7 +371,7 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =head1 NAME
 
@@ -264,7 +379,7 @@ HTTP::CookieJar - A minimalist HTTP user agent cookie jar
 
 =head1 VERSION
 
-version 0.005
+version 0.006
 
 =head1 SYNOPSIS
 
@@ -481,7 +596,7 @@ L<Mojo::UserAgent::CookieJar>
 =head2 Bugs / Feature Requests
 
 Please report any bugs or feature requests through the issue tracker
-at L<https://github.com/dagolden/http-cookiejar/issues>.
+at L<https://github.com/dagolden/HTTP-CookieJar/issues>.
 You will be notified automatically of any progress on your issue.
 
 =head2 Source Code
@@ -489,9 +604,9 @@ You will be notified automatically of any progress on your issue.
 This is open source software.  The code repository is available for
 public review and contribution under the terms of the license.
 
-L<https://github.com/dagolden/http-cookiejar>
+L<https://github.com/dagolden/HTTP-CookieJar>
 
-  git clone git://github.com/dagolden/http-cookiejar.git
+  git clone https://github.com/dagolden/HTTP-CookieJar.git
 
 =head1 AUTHOR
 
